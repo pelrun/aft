@@ -46,7 +46,7 @@ extern "C" {
 
 
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#ifndef _WIN32
 
 #include <termios.h>
 #include <sys/ioctl.h>
@@ -56,25 +56,27 @@ extern "C" {
 #include <sys/stat.h>
 #include <limits.h>
 
+typedef int HANDLE;
+
 #else
 
 #include <windows.h>
 
 #endif
 
-int RS232_OpenComport(int, int, const char *);
-int RS232_PollComport(int, unsigned char *, int);
-int RS232_SendByte(int, unsigned char);
-int RS232_SendBuf(int, unsigned char *, int);
-void RS232_CloseComport(int);
-void RS232_cputs(int, const char *);
-int RS232_IsDCDEnabled(int);
-int RS232_IsCTSEnabled(int);
-int RS232_IsDSREnabled(int);
-void RS232_enableDTR(int);
-void RS232_disableDTR(int);
-void RS232_enableRTS(int);
-void RS232_disableRTS(int);
+int RS232_OpenComport(const char *comport, int, const char *, HANDLE *handle);
+int RS232_PollComport(HANDLE, unsigned char *, int);
+int RS232_SendByte(HANDLE, unsigned char);
+int RS232_SendBuf(HANDLE, unsigned char *, int);
+void RS232_CloseComport(HANDLE);
+void RS232_cputs(HANDLE, const char *);
+int RS232_IsDCDEnabled(HANDLE);
+int RS232_IsCTSEnabled(HANDLE);
+int RS232_IsDSREnabled(HANDLE);
+void RS232_enableDTR(HANDLE);
+void RS232_disableDTR(HANDLE);
+void RS232_enableRTS(HANDLE);
+void RS232_disableRTS(HANDLE);
 
 
 #ifdef __cplusplus

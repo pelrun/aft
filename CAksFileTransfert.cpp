@@ -1,6 +1,6 @@
 /**
  * @class CAksFileTransfert
- * Class used to communicate with CPCBooster using Arkos File Transfert protocol
+ * Class used to communicate with CPCBooster using Arkos File Transfer protocol
  * @author Thierry JOUIN
  * @version 1.1
  * @date 06/02/2006
@@ -33,7 +33,7 @@ const char* CAksFileTransfert::AksCommandLongDesc[] =
 {
 	"Test Communication (send #80 to CPC to confirm).",
 	"Asked to send 'word' bytes. 0=#10000",
-	"End Tranfer. Close all file in output and input.",
+	"End Transfer. Close all file in output and input.",
 	"Rewind. Return to the beginning of the file.",
 	"Ask Filesize (send DWord to CPC).",
 	"Ask Filename (send 12 bytes to CPC).",
@@ -45,7 +45,7 @@ const char* CAksFileTransfert::AksCommandLongDesc[] =
 	"Warn that no more track is to be transfered. The DSK can be completed and closed. This command closes the file.",
 	"Open a file in input. Get 12 bytes (filename). Send byte (#80=ok autre=echec)"
 };
-
+  
 const char* CAksFileTransfert::DisplayMessageHeader[] =
 {
 	"",
@@ -152,7 +152,8 @@ CAksCommand CAksFileTransfert::GetCommand(bool wait)
 	bool readed = false;
 	if (wait)
 	{
-		readed = ReadWaitByte(command);
+		ReadWaitByte(command);
+		readed = true;
 	}
 	else
 	{
@@ -316,7 +317,7 @@ bool CAksFileTransfert::CreateFile(const CAksCommand &cmd)
 	if (cmd != AksCreateFile)
 		return false;
 
-	ReadBuffer(_amsFilename, 12);
+	ReadWaitBuffer(_amsFilename, 12);
 	_amsFilename[12] = 0;
 
 	std::cout << "Filename " << _amsFilename << std::endl;
@@ -346,13 +347,13 @@ bool CAksFileTransfert::AddData(const CAksCommand &cmd)
 
 	unsigned short size;
 
-	ReadWord(size);
+	ReadWaitWord(size);
 	
 	std::cout << "Read word " << std::hex << (int)size << std::dec << std::endl;
 
 	unsigned char *buffer = new unsigned char[size];
 
-	ReadBuffer(buffer, size);
+	ReadWaitBuffer(buffer, size);
 
 	if (_outStream != NULL)
 	{
@@ -404,10 +405,10 @@ bool CAksFileTransfert::InitDSK(const CAksCommand &cmd)
 	unsigned char nbSide;
 	unsigned char creator[2];
 	
-	ReadByte(creator[0]);
-	ReadByte(creator[1]);
-	ReadByte(nbTrack);
-	ReadByte(nbSide);
+	ReadWaitByte(creator[0]);
+	ReadWaitByte(creator[1]);
+	ReadWaitByte(nbTrack);
+	ReadWaitByte(nbSide);
 
 	_EDSKFile = new CExtendedDSKFile(nbTrack, nbSide);
 
@@ -424,8 +425,8 @@ bool CAksFileTransfert::WaitTrack(const CAksCommand &cmd)
 	unsigned char trackNum;
 	unsigned char sideNum;
 
-	ReadByte(trackNum);
-	ReadByte(sideNum);
+	ReadWaitByte(trackNum);
+	ReadWaitByte(sideNum);
 
 	CDSKTrack fakeTrack;
 	CDSKTrack *track = NULL;
@@ -446,10 +447,10 @@ bool CAksFileTransfert::WaitTrack(const CAksCommand &cmd)
 	track->TrackNumber = trackNum;
 	track->SideNumber = sideNum;
 
-	ReadByte(track->SectorSize);
-	ReadByte(track->NbSector);
-	ReadByte(track->GAP3Size);
-	ReadByte(track->FillByte);
+	ReadWaitByte(track->SectorSize);
+	ReadWaitByte(track->NbSector);
+	ReadWaitByte(track->GAP3Size);
+	ReadWaitByte(track->FillByte);
 
 	std::cout << "track " << (int)track->SectorSize << " " << (int)track->NbSector << " " << (int)track->GAP3Size << " " << (int)track->FillByte << std::endl;
 
@@ -459,19 +460,19 @@ bool CAksFileTransfert::WaitTrack(const CAksCommand &cmd)
 	{
 		CDSKSector &sect = track->Sectors[s];
 
-		ReadByte(sect.Track);
-		ReadByte(sect.Side);
-		ReadByte(sect.SectorID);
-		ReadByte(sect.SectorSize);
-		ReadByte(sect.FDCStatus1);
-		ReadByte(sect.FDCStatus2);
-		ReadWord(sect.DataSize);
+		ReadWaitByte(sect.Track);
+		ReadWaitByte(sect.Side);
+		ReadWaitByte(sect.SectorID);
+		ReadWaitByte(sect.SectorSize);
+		ReadWaitByte(sect.FDCStatus1);
+		ReadWaitByte(sect.FDCStatus2);
+		ReadWaitWord(sect.DataSize);
 
 		sect.DisplayInfo(std::cout);
 
 		sect.Allocate();
 
-		ReadBuffer(sect.Data, sect.GetDataSize());
+		ReadWaitBuffer(sect.Data, sect.GetDataSize());
 
 		sect.Update();
 	}
@@ -509,7 +510,7 @@ bool CAksFileTransfert::OpenFile(const CAksCommand &cmd)
 	if (cmd != AksOpenFile)
 		return false;
 
-	ReadBuffer(_amsFilename, 12);
+	ReadWaitBuffer(_amsFilename, 12);
 	_amsFilename[12] = 0;
 
 	if (_inStream != NULL)

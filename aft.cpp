@@ -16,7 +16,7 @@
 
 struct SOption appliOption[]=
 {
-	{'p', "comPort",   0,1,1,"Set <$1> as COM port (/dev/ttyS* or COM*)"},
+	{'p', "comPort",   0,1,1,"Set <$1> as COM port (eg /dev/ttyS* or COM*)"},
 	{'f', "file",      0,1,1,"Force <$1> to be transfered file"},
 	{'d', "directory", 0,1,1,"Force <$1> to be transfered directory"},
 	{'n', "noLoop",    0,1,0,"Do not loop AFT transfert"},
@@ -27,7 +27,7 @@ static const std::string authorName = "Targhan/Ramlaid/Krusty/PulkoMandy";
 static const std::string authorMail = "cpcsdk@googlegroups.com";
 static const std::string appliName = "aft";
 static const std::string appliUsageShort = "";
-static const std::string appliUsageLong = "\nArkos File Transfert tool";
+static const std::string appliUsageLong = "\nArkos File Transfer tool";
 
 static inline char const *const defaultComPort()
 {
@@ -39,7 +39,7 @@ static inline char const *const defaultComPort()
 		return "/dev/ttyUSB0";
 	#endif
 
-	return "1";
+	return "COM1";
 }
 
 int main(int argc, char *argv[])
@@ -98,15 +98,11 @@ int main(int argc, char *argv[])
 			i++;
 		}
 
-#if _WINDOWS
-		CAksFileTransfert transfert("\\\\.\\COM" + COMport);
-#else
 		CAksFileTransfert transfert(COMport);
-#endif
 
 		if (!transfert.IsOpen())
 		{
-			std::cout << "Unable to open port COM " << COMport << std::endl;
+			std::cout << "Unable to open comport " << COMport << std::endl;
 			return -1;
 		} else {
 			std::cout << "AFT now listening on " << COMport << std::endl;

@@ -1,6 +1,18 @@
-CXX=g++
-CXXFLAGS=-D_WINDOWS -fpermissive -static-libgcc -O2
-SOURCES=aft.cpp CAksFileTransfert.cpp CCPCBooster.cpp CDSKFile.cpp CError.cpp COptionParser.cpp optionParser.c
+CC=gcc
+CPP=g++
+CFLAGS=-D_WINDOWS -O2
+CPPFLAGS=-D_WINDOWS -fpermissive -O2
+LDFLAGS=-static-libgcc
+OBJECTS=aft.o CAksFileTransfert.o CCPCBooster.o CDSKFile.o CError.o COptionParser.o optionParser.o rs232.o
 
-aft: *.cpp *.h *.c
-	${CXX} -o aft ${SOURCES} ${CXXFLAGS}
+aft: $(OBJECTS)
+	$(CPP) -o aft $(OBJECTS) $(LDFLAGS)
+
+%.o : %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+%.o : %.cpp
+	$(CPP) -c $(CPPFLAGS) $< -o $@
+
+clean:
+	$(RM) *.o *.exe
