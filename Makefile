@@ -1,7 +1,7 @@
 CC=gcc
 CPP=g++
-CFLAGS=-D_WINDOWS -O2
-CPPFLAGS=-D_WINDOWS -fpermissive -O2
+CFLAGS=-O2
+CPPFLAGS=-fpermissive -O2
 LDFLAGS=-static-libgcc
 OBJECTS=aft.o CAksFileTransfert.o CCPCBooster.o CDSKFile.o CError.o COptionParser.o optionParser.o rs232.o
 

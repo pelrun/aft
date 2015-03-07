@@ -1,1 +1,1 @@
-g++ aft.cpp CAksFileTransfert.cpp CCPCBooster.cpp CDSKFile.cpp CError.cpp COptionParser.cpp optionParser.c -o aft -D_WINDOWS -fpermissive -static-libgcc -static-libstdc++
+g++ aft.cpp CAksFileTransfert.cpp CCPCBooster.cpp CDSKFile.cpp CError.cpp COptionParser.cpp optionParser.c -o aft -fpermissive -static-libgcc -static-libstdc++
