@@ -529,7 +529,7 @@ http://technet.microsoft.com/en-us/library/cc732236.aspx
 
   COMMTIMEOUTS Cptimeouts;
 
-  Cptimeouts.ReadIntervalTimeout         = MAXDWORD;
+  Cptimeouts.ReadIntervalTimeout         = 0;
   Cptimeouts.ReadTotalTimeoutMultiplier  = 0;
   Cptimeouts.ReadTotalTimeoutConstant    = 0;
   Cptimeouts.WriteTotalTimeoutMultiplier = 0;
