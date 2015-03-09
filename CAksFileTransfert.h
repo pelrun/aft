@@ -21,7 +21,11 @@
 enum CAksCommand
 {
 	AksUnknownCommand	= 0x00,		//!< Unknown command
-	AksMinCommand		= 0xF0-1,	//!< Min command number
+	AksMinCommand		= 0xEC-1,	//!< Min command number
+  AksListDirectory = 0xEC, 		//!< #ED = List directory : get number of dir entry to send, Send pascal string to CPC, 0 len if end of dir.
+  AksChangeDirectory = 0xED, 		//!< #EE = Change dir : get pascal string (path), Send byte (#80=ok autre=echec)
+  AksCreateFileLong = 0xEE, 		//!< #EF = Create file : get pascal string (long filename), Send byte (#80=ok autre=echec)
+  AksOpenFileLong = 0xEF, 		//!< #EF = Open a file in input.  : get pascal string (long filename), Send byte (#80=ok autre=echec)
 	AksTestComunication = 0xF0,		//!< #F0 Test Communication (send #80 to CPC to confirm).
 	AksSend				= 0xF1,		//!< #F1 + Word = Asked to send 'word' bytes. 0=#10000
 	AksEndTransfert		= 0xF2,		//!< #F2 = End Tranfer. Close all file in output and input.
@@ -86,7 +90,7 @@ protected:
 	//! Current filename
 	std::string			_filename;
 	//! Current filename in Amstrad format
-	unsigned char		_amsFilename[13];
+	unsigned char		_amsFilename[256];
 	//! Current filename path for creating file
 	std::string			_filepath;
 
@@ -139,6 +143,10 @@ protected:
 	bool WaitTrack(const CAksCommand &cmd);
 	bool NoMoreTrack(const CAksCommand &cmd);
 	bool OpenFile(const CAksCommand &cmd);
+	bool OpenFileLong(const CAksCommand &cmd);
+	bool CreateFileLong(const CAksCommand &cmd);
+	bool ChangeDirectory(const CAksCommand &cmd);
+	bool ListDirectory(const CAksCommand &cmd);
 
 	//! Display message
 	void Display(CAksVerboseLevel level, const std::string &message);
@@ -150,4 +158,10 @@ protected:
 	void Info(const std::string &message);
 	//! Display debug
 	void Debug(const std::string &message);
+  
+private:
+  void _readFilename();
+  void _readFilenameLong();
+  bool _openFile();
+  bool _createFile();
 };

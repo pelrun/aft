@@ -14,6 +14,10 @@
 
 const char* CAksFileTransfert::AksCommandShortDesc[] = 
 {
+	"ListDirectory",
+	"ChangeDirectory",
+	"CreateFileLong",
+	"OpenFileLong",
 	"TestComunication",
 	"Send",
 	"EndTransfert",
@@ -31,6 +35,10 @@ const char* CAksFileTransfert::AksCommandShortDesc[] =
 
 const char* CAksFileTransfert::AksCommandLongDesc[] = 
 {
+	"",
+  "",
+  "",
+  "",
 	"Test Communication (send #80 to CPC to confirm).",
 	"Asked to send 'word' bytes. 0=#10000",
 	"End Transfer. Close all file in output and input.",
@@ -136,6 +144,12 @@ CAksCommand CAksFileTransfert::Run(bool wait)
 	case AksWaitTrack:			{ WaitTrack(cmd);			break; }
 	case AksNoMoreTrack:		{ NoMoreTrack(cmd);			break; }
 	case AksOpenFile:			{ OpenFile(cmd);			break; }
+  // pelrun's extended api
+  case AksCreateFileLong: { CreateFileLong(cmd); break; }
+  case AksOpenFileLong: { OpenFileLong(cmd); break; }
+  case AksListDirectory: { ListDirectory(cmd); break; }
+  case AksChangeDirectory: { ChangeDirectory(cmd); break; }
+  
 	default: assert(false);
 	}
 
@@ -210,6 +224,7 @@ bool CAksFileTransfert::TestComunication(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::Send(const CAksCommand &cmd)
 {
 	if (cmd != AksSend)
@@ -240,6 +255,7 @@ bool CAksFileTransfert::Send(const CAksCommand &cmd)
 	
 	return false;
 }
+
 bool CAksFileTransfert::EndTransfert(const CAksCommand &cmd)
 {
 	if (cmd != AksEndTransfert)
@@ -263,6 +279,7 @@ bool CAksFileTransfert::EndTransfert(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::Rewind(const CAksCommand &cmd)
 {
 	if (cmd != AksRewind)
@@ -275,6 +292,7 @@ bool CAksFileTransfert::Rewind(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::SendFileSize(const CAksCommand &cmd)
 {
 	if (cmd != AksSendFileSize)
@@ -303,6 +321,7 @@ bool CAksFileTransfert::SendFileSize(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::SendFilename(const CAksCommand &cmd)
 {
 	if (cmd != AksSendFilename)
@@ -312,14 +331,24 @@ bool CAksFileTransfert::SendFilename(const CAksCommand &cmd)
 
 	return true;
 }
-bool CAksFileTransfert::CreateFile(const CAksCommand &cmd)
-{
-	if (cmd != AksCreateFile)
-		return false;
 
+void CAksFileTransfert::_readFilename()
+{
 	ReadWaitBuffer(_amsFilename, 12);
 	_amsFilename[12] = 0;
+}
 
+void CAksFileTransfert::_readFilenameLong()
+{
+	unsigned char len;
+	ReadWaitByte(len);
+  
+	ReadWaitBuffer(_amsFilename, len);
+	_amsFilename[len] = 0;
+}
+
+bool CAksFileTransfert::_createFile()
+{
 	std::cout << "Filename " << _amsFilename << std::endl;
 
 	if (_outStream != NULL)
@@ -338,6 +367,27 @@ bool CAksFileTransfert::CreateFile(const CAksCommand &cmd)
 		return false;
 	}
 }
+
+bool CAksFileTransfert::CreateFile(const CAksCommand &cmd)
+{
+	if (cmd != AksCreateFile)
+		return false;
+
+	_readFilename();
+
+  return _createFile();
+}
+
+bool CAksFileTransfert::CreateFileLong(const CAksCommand &cmd)
+{
+	if (cmd != AksCreateFileLong)
+		return false;
+    
+	_readFilenameLong();
+
+  return _createFile();
+}
+
 bool CAksFileTransfert::AddData(const CAksCommand &cmd)
 {
 	if (cmd != AksAddData)
@@ -364,6 +414,7 @@ bool CAksFileTransfert::AddData(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::CloseFile(const CAksCommand &cmd)
 {
 	if (cmd != AksCloseFile)
@@ -387,6 +438,7 @@ bool CAksFileTransfert::CloseFile(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::InitDSK(const CAksCommand &cmd)
 {
 	if (cmd != AksInitDSK)
@@ -483,6 +535,7 @@ bool CAksFileTransfert::WaitTrack(const CAksCommand &cmd)
 
 	return true;
 }
+
 bool CAksFileTransfert::NoMoreTrack(const CAksCommand &cmd)
 {
 	if (cmd != AksNoMoreTrack)
@@ -505,14 +558,9 @@ bool CAksFileTransfert::NoMoreTrack(const CAksCommand &cmd)
 
 	return true;
 }
-bool CAksFileTransfert::OpenFile(const CAksCommand &cmd)
+
+bool CAksFileTransfert::_openFile()
 {
-	if (cmd != AksOpenFile)
-		return false;
-
-	ReadWaitBuffer(_amsFilename, 12);
-	_amsFilename[12] = 0;
-
 	if (_inStream != NULL)
 		delete _inStream;
 
@@ -536,6 +584,42 @@ bool CAksFileTransfert::OpenFile(const CAksCommand &cmd)
 	}
 }
 
+bool CAksFileTransfert::OpenFile(const CAksCommand &cmd)
+{
+	if (cmd != AksOpenFile)
+		return false;
+
+	_readFilename();
+
+  return _openFile();
+}
+
+bool CAksFileTransfert::OpenFileLong(const CAksCommand &cmd)
+{
+	if (cmd != AksOpenFileLong)
+		return false;
+  
+	_readFilenameLong();
+  
+	return _openFile();
+}
+
+bool CAksFileTransfert::ChangeDirectory(const CAksCommand &cmd)
+{
+	if (cmd != AksChangeDirectory)
+		return false;
+  
+	return false;
+}
+
+bool CAksFileTransfert::ListDirectory(const CAksCommand &cmd)
+{
+	if (cmd != AksListDirectory)
+		return false;
+  
+	return false;
+}
+
 void CAksFileTransfert::Display(CAksVerboseLevel level, const std::string &message)
 {
 	if (level <= DisplayTransfertDebug && level > NoDisplay)
@@ -543,6 +627,7 @@ void CAksFileTransfert::Display(CAksVerboseLevel level, const std::string &messa
 		std::cout << DisplayMessageHeader[level] << message << std::endl;
 	}
 }
+
 void CAksFileTransfert::Error(const std::string &message)
 {
 	Display(DisplayError, message);
