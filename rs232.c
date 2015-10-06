@@ -43,8 +43,8 @@
 int error;
 
 
-// returns -1 on error
-int RS232_OpenComport(char* comport, int baudrate, const char *mode, HANDLE *handle)
+/* returns -1 on error */
+int RS232_OpenComport(const char* comport, int baudrate, const char *mode, HANDLE *handle)
 {
   int baudr,
       status;
@@ -276,7 +276,6 @@ void RS232_CloseComport(HANDLE handle)
     perror("unable to set portstatus");
   }
 
-//  tcsetattr(handle, TCSANOW, old_port_settings + handle);
   close(handle);
 }
 
@@ -399,8 +398,10 @@ char mode_str[128];
 int RS232_OpenComport(const char *comport, int baudrate, const char *mode, HANDLE *handle)
 {
   char compath[BUFSIZ] = "\\\\.\\";
-    
-  strcat(compath, comport); // allows com ports above COM4 to work
+  DCB port_settings;
+  COMMTIMEOUTS Cptimeouts;
+      
+  strcat(compath, comport); /* allows com ports above COM4 to work */
 
   switch(baudrate)
   {
@@ -509,7 +510,6 @@ http://technet.microsoft.com/en-us/library/cc732236.aspx
     return -1;
   }
 
-  DCB port_settings;
   memset(&port_settings, 0, sizeof(port_settings));  /* clear the new struct  */
   port_settings.DCBlength = sizeof(port_settings);
 
@@ -526,8 +526,6 @@ http://technet.microsoft.com/en-us/library/cc732236.aspx
     CloseHandle(*handle);
     return -1;
   }
-
-  COMMTIMEOUTS Cptimeouts;
 
   Cptimeouts.ReadIntervalTimeout         = 0;
   Cptimeouts.ReadTotalTimeoutMultiplier  = 0;
